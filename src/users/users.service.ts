@@ -5,6 +5,8 @@ import {
 } from '@nestjs/common';
 import { UserRepository } from './repository/user.repository';
 import { CreateUserDTO } from './dto/create-user.dto';
+import { UpdateUserDTO } from './dto/update-user.dto';
+import { UserRole } from 'src/common/enums/role.enum';
 
 @Injectable()
 export class UserService {
@@ -23,15 +25,29 @@ export class UserService {
     return { message: `User details of ${id}`, user };
   }
 
-  // move to auth service
   async create(createUserDTO: CreateUserDTO) {
     const existedUser = await this.userRepository.findByEmail(
       createUserDTO.email,
     );
     if (existedUser) throw new BadRequestException('Email already exist!');
+
+    const validRoles = Object.values(UserRole);
+    if (createUserDTO.Role && !validRoles.includes(createUserDTO.Role)) {
+      throw new BadRequestException(
+        `Invalid Role ${createUserDTO.Role}, Roles must be either Admin or Employee`,
+      );
+    }
     const user = await this.userRepository.create(createUserDTO);
     return { message: 'Created Successfully', user };
   }
-}
 
-// complete first the crud before moving the create user on auth module
+  async editUser(id: number, updateUserDTO: UpdateUserDTO) {
+    const user = await this.userRepository.edit(id, updateUserDTO);
+    return { message: 'Updated Successfully', user };
+  }
+
+  async deleteUser(id: number) {
+    const user = await this.userRepository.delete(id);
+    return { message: 'Deleted Successfully', user };
+  }
+}
