@@ -1,36 +1,24 @@
-import {
-  IsEmail,
-  IsNotEmpty,
-  IsNumber,
-  IsPositive,
-  IsString,
-} from 'class-validator';
-import { UserRole } from 'src/common/enums/role.enum';
-import { UserStatus } from 'src/common/enums/status.enum';
+import { IsEmail, IsNotEmpty, IsNumber, MinLength } from 'class-validator';
+import { UserRole } from 'src/common/enums/user-role.enum';
 
 export class CreateUserDTO {
   @IsNotEmpty()
-  userName: string;
-
-  @IsEmail()
-  @IsNotEmpty()
-  email: string;
+  @MinLength(3)
+  username: string;
 
   @IsNotEmpty()
+  @MinLength(3)
   password: string;
 
   @IsNotEmpty()
-  @IsString()
-  fullName: string;
+  @MinLength(3)
+  @IsEmail()
+  email: string;
 
   @IsNotEmpty()
-  status: UserStatus;
-
   @IsNumber()
-  @IsNotEmpty()
-  @IsPositive()
   age: number;
 
   @IsNotEmpty()
-  Role: UserRole;
+  role: UserRole;
 }

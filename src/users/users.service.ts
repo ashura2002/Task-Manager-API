@@ -3,51 +3,58 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { UserRepository } from './repository/user.repository';
-import { CreateUserDTO } from './dto/create-user.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from './entities/user.entity';
+import { Repository } from 'typeorm';
 import { UpdateUserDTO } from './dto/update-user.dto';
-import { UserRole } from 'src/common/enums/role.enum';
+import { CreateUserDTO } from './dto/create-user.dto';
+import { UserRole } from 'src/common/enums/user-role.enum';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepository: UserRepository) {}
-  async findAll() {
-    const user = await this.userRepository.findAll();
-    return {
-      message: `${user.length === 0 ? 'No Users Found' : 'List Of Users'}`,
-      user,
-    };
+  constructor(
+    @InjectRepository(User) private readonly userRepo: Repository<User>,
+  ) {}
+
+  async findAll(): Promise<User[]> {
+    const user = await this.userRepo.find();
+    return user;
   }
 
-  async findById(id: number) {
-    const user = await this.userRepository.findById(id);
+  async findById(id: number): Promise<User> {
+    const user = await this.userRepo.findOne({
+      where: { id },
+    });
     if (!user) throw new NotFoundException('User not found!');
-    return { message: `User details of ${id}`, user };
+    return user;
   }
 
-  async create(createUserDTO: CreateUserDTO) {
-    const existedUser = await this.userRepository.findByEmail(
-      createUserDTO.email,
-    );
-    if (existedUser) throw new BadRequestException('Email already exist!');
+  async create(createUserDTO: CreateUserDTO): Promise<User> {
+    const { email, role } = createUserDTO;
+    const existingUser = await this.userRepo.findOne({
+      where: { email },
+    });
+    if (existingUser) throw new BadRequestException('Email already exist');
 
     const validRoles = Object.values(UserRole);
-    if (createUserDTO.Role && !validRoles.includes(createUserDTO.Role)) {
+    if (!validRoles.includes(role)) {
       throw new BadRequestException(
-        `Invalid Role ${createUserDTO.Role}, Roles must be either Admin or Employee`,
+        `Invalid role: ${role}. Role must be either Admin or Employee.`,
       );
     }
-    const user = await this.userRepository.create(createUserDTO);
-    return { message: 'Created Successfully', user };
+    const user = this.userRepo.create(createUserDTO);
+    await this.userRepo.save(user);
+    return user;
   }
 
-  async editUser(id: number, updateUserDTO: UpdateUserDTO) {
-    const user = await this.userRepository.edit(id, updateUserDTO);
-    return { message: 'Updated Successfully', user };
-  }
-
-  async deleteUser(id: number) {
-    const user = await this.userRepository.delete(id);
-    return { message: 'Deleted Successfully', user };
+  async update(id: number, updateUserDTO: UpdateUserDTO): Promise<User> {
+    const existingUser = await this.userRepo.findOne({
+      where: { id },
+    });
+    if (!existingUser) throw new NotFoundException('User not found');
+    Object.assign(existingUser, updateUserDTO);
+    const user = await this.userRepo.save(existingUser);
+    return user;
   }
 }
+// add delete function

@@ -1,7 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { Exclude } from 'class-transformer';
-import { UserStatus } from 'src/common/enums/status.enum';
-import { UserRole } from 'src/common/enums/role.enum';
+import { UserRole } from 'src/common/enums/user-role.enum';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class User {
@@ -9,32 +8,22 @@ export class User {
   id: number;
 
   @Column()
-  userName: string;
-
-  @Column()
-  email: string;
+  username: string;
 
   @Column()
   @Exclude()
   password: string;
 
   @Column()
-  fullName: string;
-
-  @Column({
-    type: 'enum',
-    default: UserStatus.Single,
-    enum: UserStatus,
-  })
-  status: UserStatus;
+  email: string;
 
   @Column()
   age: number;
 
   @Column({
     type: 'enum',
-    default: UserRole.Employee,
     enum: UserRole,
+    default: UserRole.Employee,
   })
-  Role: UserRole;
+  role: UserRole;
 }
