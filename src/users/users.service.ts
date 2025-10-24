@@ -56,5 +56,11 @@ export class UserService {
     const user = await this.userRepo.save(existingUser);
     return user;
   }
+
+  async deleteUser(id: number): Promise<void> {
+    // pag void no return
+    const user = await this.userRepo.findOne({ where: { id } });
+    if (!user) throw new NotFoundException('User not found');
+    await this.userRepo.remove(user);
+  }
 }
-// add delete function
