@@ -13,7 +13,6 @@ import {
 import { UserService } from './users.service';
 import { User } from './entities/user.entity';
 import { UpdateUserDTO } from './dto/update-user.dto';
-import { CreateUserDTO } from './dto/create-user.dto';
 
 @Controller('users')
 export class UserController {
@@ -23,12 +22,6 @@ export class UserController {
   @Get()
   async getAllUser(): Promise<User[]> {
     return await this.userService.findAll();
-  }
-
-  @HttpCode(HttpStatus.CREATED)
-  @Post()
-  async registerUser(@Body() createUserDTO: CreateUserDTO): Promise<User> {
-    return await this.userService.create(createUserDTO);
   }
 
   @HttpCode(HttpStatus.OK)

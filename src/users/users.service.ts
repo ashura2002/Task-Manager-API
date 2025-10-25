@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
@@ -9,6 +10,8 @@ import { Repository } from 'typeorm';
 import { UpdateUserDTO } from './dto/update-user.dto';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UserRole } from 'src/common/enums/user-role.enum';
+import { LoginDTO } from 'src/auth/dto/login.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -44,6 +47,7 @@ export class UserService {
     }
     const user = this.userRepo.create(createUserDTO);
     await this.userRepo.save(user);
+    console.log('after save', user);
     return user;
   }
 
@@ -52,6 +56,13 @@ export class UserService {
       where: { id },
     });
     if (!existingUser) throw new NotFoundException('User not found');
+
+    // if true or included to change
+    if (updateUserDTO.password) {
+      const hashUpdatedPass = await bcrypt.hash(updateUserDTO.password, 10);
+      updateUserDTO.password = hashUpdatedPass;
+    }
+
     Object.assign(existingUser, updateUserDTO);
     const user = await this.userRepo.save(existingUser);
     return user;
@@ -62,5 +73,13 @@ export class UserService {
     const user = await this.userRepo.findOne({ where: { id } });
     if (!user) throw new NotFoundException('User not found');
     await this.userRepo.remove(user);
+  }
+
+  async findByUsername(loginDTO: LoginDTO): Promise<User> {
+    const user = await this.userRepo.findOne({
+      where: { username: loginDTO.username },
+    });
+    if (!user) throw new UnauthorizedException('Invalid Credentials');
+    return user;
   }
 }
