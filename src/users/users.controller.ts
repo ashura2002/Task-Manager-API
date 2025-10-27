@@ -9,10 +9,12 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './users.service';
 import { User } from './entities/user.entity';
 import { UpdateUserDTO } from './dto/update-user.dto';
+import { AuthGuard } from 'src/common/auth.guard';
 
 @Controller('users')
 export class UserController {
