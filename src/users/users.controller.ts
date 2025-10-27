@@ -8,7 +8,7 @@ import {
   Param,
   ParseIntPipe,
   Patch,
-  Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './users.service';
@@ -52,6 +52,15 @@ export class UserController {
     await this.userService.deleteUser(id);
   }
 
-  // review mga page na nadisplay
-  // add get current user profile
+  @HttpCode(HttpStatus.OK)
+  @Role(UserRole.Admin, UserRole.Employee)
+  @Get('/profile')
+  async getCurrentUser(@Req() req) {
+    const { userId } = req.user;
+    return await this.userService.getCurrentUser(userId);
+  }
 }
+
+// to do ->
+// create task module
+// implement many to one and one to many relation

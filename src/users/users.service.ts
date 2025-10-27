@@ -82,4 +82,10 @@ export class UserService {
     if (!user) throw new UnauthorizedException('Invalid Credentials');
     return user;
   }
+
+  async getCurrentUser(id: number): Promise<User> {
+    const user = await this.userRepo.findOne({ where: { id } });
+    if (!user) throw new NotFoundException();
+    return user;
+  }
 }

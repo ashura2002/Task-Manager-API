@@ -1,6 +1,13 @@
 import { Exclude } from 'class-transformer';
 import { UserRole } from 'src/common/enums/user-role.enum';
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BeforeInsert,
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
 @Entity()
@@ -27,6 +34,12 @@ export class User {
     default: UserRole.Employee,
   })
   role: UserRole;
+
+  @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  updatedAt: Date;
 
   @BeforeInsert()
   async hashPassword() {

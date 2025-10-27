@@ -11,6 +11,7 @@ export class RoleGuard implements CanActivate {
       context.getClass(),
     ]);
 
+    // for route that dont need a role to access
     if (!requireRole) return true;
 
     const user = context.switchToHttp().getRequest().user;

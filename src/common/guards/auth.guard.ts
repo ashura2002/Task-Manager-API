@@ -12,7 +12,7 @@ export class AuthGuard implements CanActivate {
   constructor(private readonly jwtService: JwtService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<Request>();
     const accessToken = this.extractFromHeader(request);
     if (!accessToken) throw new UnauthorizedException();
 
@@ -21,6 +21,7 @@ export class AuthGuard implements CanActivate {
         secret: process.env.JWT_SECRET,
       });
       request['user'] = payload;
+      // console.log('from auth guard', request['user']);
     } catch (error) {
       throw new UnauthorizedException();
     }
@@ -28,7 +29,9 @@ export class AuthGuard implements CanActivate {
   }
 
   private extractFromHeader(request: Request): string | undefined {
-    const [type, accessToken] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? accessToken : undefined;
+    const [bearer, accessToken] =
+      request.headers.authorization?.split(' ') ?? [];
+    return bearer === 'Bearer' ? accessToken : undefined;
   }
 }
+
