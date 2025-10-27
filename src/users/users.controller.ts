@@ -14,9 +14,14 @@ import {
 import { UserService } from './users.service';
 import { User } from './entities/user.entity';
 import { UpdateUserDTO } from './dto/update-user.dto';
-import { AuthGuard } from 'src/common/auth.guard';
+import { AuthGuard } from 'src/common/guards/auth.guard';
+import { RoleGuard } from 'src/common/guards/role.guard';
+import { Role } from 'src/common/decorators/role.decorator';
+import { UserRole } from 'src/common/enums/user-role.enum';
 
 @Controller('users')
+@UseGuards(AuthGuard, RoleGuard)
+@Role(UserRole.Admin)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -46,4 +51,7 @@ export class UserController {
   async removeUser(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.userService.deleteUser(id);
   }
+
+  // review mga page na nadisplay
+  // add get current user profile
 }
