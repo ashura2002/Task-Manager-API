@@ -1,3 +1,4 @@
+import { Status } from 'src/common/enums/taskStatus.enum';
 import { User } from 'src/users/entities/user.entity';
 import {
   Column,
@@ -17,6 +18,13 @@ export class Task {
 
   @Column()
   description: string;
+
+  @Column({
+    type: 'enum',
+    default: Status.Pending,
+    enum: Status,
+  })
+  status: Status;
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
