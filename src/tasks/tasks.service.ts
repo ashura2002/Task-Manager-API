@@ -3,7 +3,6 @@ import { Task } from './entities/task.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateTaskDTO } from './dto/create-task.dto';
-import { User } from 'src/users/entities/user.entity';
 import { UserService } from 'src/users/users.service';
 
 @Injectable()
@@ -43,5 +42,24 @@ export class TaskService {
       },
     });
     return task;
+  }
+
+  async getAllTaskByAdmin(): Promise<Task[]> {
+    const task = await this.taskRepo.find();
+    return task;
+  }
+
+  async getTaskById(id: number): Promise<Task> {
+    const task = await this.taskRepo.findOne({
+      where: { id },
+    });
+    if (!task) throw new NotFoundException('Task no found!');
+    return task;
+  }
+
+  async deleteTask(id: number): Promise<void> {
+    const task = await this.taskRepo.findOne({ where: { id } });
+    if (!task) throw new NotFoundException('Task not found');
+    await this.taskRepo.remove(task);
   }
 }
