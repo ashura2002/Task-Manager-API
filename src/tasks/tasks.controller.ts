@@ -12,19 +12,18 @@ import { UserRole } from 'src/common/enums/user-role.enum';
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
+  // create -> Admin only
   @Post()
   @Role(UserRole.Admin)
-  async createTask(
-    @Req() req,
-    @Body() createTaskDTO: CreateTaskDTO,
-  ): Promise<Task> {
-    const { userId } = req.user;
-    return await this.taskService.createTask(userId, createTaskDTO);
+  async createTask(@Body() createTaskDTO: CreateTaskDTO): Promise<Task> {
+    return await this.taskService.createTask(createTaskDTO);
   }
 
+  // get all own task -> employee only
   @Get()
-  async getAllTask(@Req() req): Promise<Task[]> {
-    const { userId } = req.user;
-    return await this.taskService.getAllUser(userId);
+  @Role(UserRole.Employee)
+  async getAllOwnTask(@Req() req): Promise<Task[]> {
+    const {userId} = req.user
+    return await this.taskService.getAllOwnTask(userId);
   }
 }

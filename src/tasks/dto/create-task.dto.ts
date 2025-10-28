@@ -1,4 +1,11 @@
-import { IsNotEmpty, IsString, MinLength } from 'class-validator';
+import {
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
 
 export class CreateTaskDTO {
   @IsNotEmpty()
@@ -10,4 +17,8 @@ export class CreateTaskDTO {
   @MinLength(3)
   @IsString()
   description: string;
+
+  @IsInt()
+  @IsNotEmpty()
+  employeeId: number;
 }
