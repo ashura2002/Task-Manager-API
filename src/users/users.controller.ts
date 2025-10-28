@@ -60,7 +60,3 @@ export class UserController {
     return await this.userService.getCurrentUser(userId);
   }
 }
-
-// to do ->
-// create task module
-// implement many to one and one to many relation

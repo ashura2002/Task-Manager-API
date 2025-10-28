@@ -5,10 +5,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { Task } from 'src/tasks/entities/task.entity';
 
 @Entity()
 export class User {
@@ -45,4 +47,7 @@ export class User {
   async hashPassword() {
     this.password = await bcrypt.hash(this.password, 10);
   }
+
+  @OneToMany(() => Task, (task) => task.employee)
+  tasks: Task[];
 }
