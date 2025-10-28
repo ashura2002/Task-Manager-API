@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Req,
   UseGuards,
@@ -18,6 +19,7 @@ import { Task } from './entities/task.entity';
 import { CreateTaskDTO } from './dto/create-task.dto';
 import { Role } from 'src/common/decorators/role.decorator';
 import { UserRole } from 'src/common/enums/user-role.enum';
+import { UpdateTaskDTO } from './dto/update-task.dto';
 
 @Controller('tasks')
 @UseGuards(AuthGuard, RoleGuard)
@@ -63,6 +65,13 @@ export class TaskController {
     await this.taskService.deleteTask(id);
   }
 
-  // patch nalang 
-  // then notification for user who got assign a task from admin
+  @HttpCode(HttpStatus.OK)
+  @Patch(':id')
+  @Role(UserRole.Admin)
+  async updateTask(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateTastDTO: UpdateTaskDTO,
+  ): Promise<Task> {
+    return await this.taskService.updateTask(id, updateTastDTO);
+  }
 }

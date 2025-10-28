@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateTaskDTO } from './dto/create-task.dto';
 import { UserService } from 'src/users/users.service';
+import { UpdateTaskDTO } from './dto/update-task.dto';
 
 @Injectable()
 export class TaskService {
@@ -16,7 +17,6 @@ export class TaskService {
   async createTask(createTaskDTO: CreateTaskDTO): Promise<Task> {
     const { employeeId, ...taskAssign } = createTaskDTO;
     const employee = await this.userRepo.findById(employeeId);
-    if (!employee) throw new NotFoundException('User not found');
     const task = this.taskRepo.create({
       ...taskAssign,
       employee,
@@ -61,5 +61,22 @@ export class TaskService {
     const task = await this.taskRepo.findOne({ where: { id } });
     if (!task) throw new NotFoundException('Task not found');
     await this.taskRepo.remove(task);
+  }
+
+  async updateTask(id: number, updateTaskDTO: UpdateTaskDTO): Promise<Task> {
+    const { employeeId, ...modifyTask } = updateTaskDTO;
+    const taskExisted = await this.taskRepo.findOne({
+      where: { id },
+      relations: ['employee'],
+    });
+    if (!taskExisted) throw new NotFoundException('Task not existed!');
+
+    if (employeeId) {
+      const existedUser = await this.userRepo.findById(employeeId);
+      taskExisted.employee = existedUser;
+    }
+
+    Object.assign(taskExisted, modifyTask);
+    return await this.taskRepo.save(taskExisted);
   }
 }
