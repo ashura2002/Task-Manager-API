@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Notification_ } from './entities/notifications.entity';
@@ -17,7 +17,6 @@ export class NotificationService {
     const userNotifications = await this.notificationRepo.find({
       where: { recipient: { id: userId } },
     });
-    console.log(userId)
     return userNotifications;
   }
 
