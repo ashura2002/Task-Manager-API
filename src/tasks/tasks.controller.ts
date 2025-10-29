@@ -59,12 +59,15 @@ export class TaskController {
     return await this.taskService.getTaskById(id);
   }
 
+  // -> admin only
   @HttpCode(HttpStatus.NO_CONTENT)
+  @Role(UserRole.Admin)
   @Delete(':id')
   async deleteTask(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.taskService.deleteTask(id);
   }
 
+  // -> admin only
   @HttpCode(HttpStatus.OK)
   @Patch(':id')
   @Role(UserRole.Admin)

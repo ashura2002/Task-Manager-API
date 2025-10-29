@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Task } from 'src/tasks/entities/task.entity';
+import { Notification_ } from 'src/notifications/entities/notifications.entity';
 
 @Entity()
 export class User {
@@ -50,4 +51,7 @@ export class User {
 
   @OneToMany(() => Task, (task) => task.employee)
   tasks: Task[];
+
+  @OneToMany(() => Notification_, (notif) => notif.recipient)
+  notifications: Notification_[];
 }

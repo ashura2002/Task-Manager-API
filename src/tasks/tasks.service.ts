@@ -53,7 +53,7 @@ export class TaskService {
     const task = await this.taskRepo.findOne({
       where: { id },
     });
-    if (!task) throw new NotFoundException('Task no found!');
+    if (!task) throw new NotFoundException('Task not found!');
     return task;
   }
 
