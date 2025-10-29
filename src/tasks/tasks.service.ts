@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { CreateTaskDTO } from './dto/create-task.dto';
 import { UserService } from 'src/users/users.service';
 import { UpdateTaskDTO } from './dto/update-task.dto';
+import { NotificationService } from 'src/notifications/notifications.service';
 
 @Injectable()
 export class TaskService {
@@ -12,6 +13,7 @@ export class TaskService {
     @InjectRepository(Task)
     private readonly taskRepo: Repository<Task>,
     private readonly userRepo: UserService,
+    private readonly notificationService: NotificationService,
   ) {}
 
   async createTask(createTaskDTO: CreateTaskDTO): Promise<Task> {
@@ -21,7 +23,12 @@ export class TaskService {
       ...taskAssign,
       employee,
     });
-    return await this.taskRepo.save(task);
+    const savedTask = await this.taskRepo.save(task);
+    await this.notificationService.createUserNotification({
+      userId: employeeId,
+      message: `You have been assign for a new task: ${savedTask.title}`,
+    });
+    return savedTask;
   }
 
   async getAllOwnTask(userId: number): Promise<Task[]> {

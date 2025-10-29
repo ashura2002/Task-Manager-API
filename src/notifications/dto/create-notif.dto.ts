@@ -8,5 +8,5 @@ export class createNotificationDTO {
 
   @IsString()
   @IsOptional()
-  message?: string;
+  message: string;
 }

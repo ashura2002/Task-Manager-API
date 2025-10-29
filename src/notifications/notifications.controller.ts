@@ -12,5 +12,16 @@ import { Notification_ } from './entities/notifications.entity';
 export class NotificationController {
   constructor(private readonly notifService: NotificationService) {}
 
+  @Get('me')
+  async getOwnNotification(@Req() req): Promise<Notification_[]> {
+    const { userId } = req.user;
+    return await this.notifService.getOwnNotification(userId);
+  }
 
+  @Post()
+  async createUserNotification(
+    @Body() createNotificationDTO: createNotificationDTO,
+  ): Promise<Notification_> {
+    return this.notifService.createUserNotification(createNotificationDTO);
+  }
 }
