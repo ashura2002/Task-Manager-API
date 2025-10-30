@@ -12,13 +12,13 @@ export class TaskService {
   constructor(
     @InjectRepository(Task)
     private readonly taskRepo: Repository<Task>,
-    private readonly userRepo: UserService,
+    private readonly userService: UserService,
     private readonly notificationService: NotificationService,
   ) {}
 
   async createTask(createTaskDTO: CreateTaskDTO): Promise<Task> {
     const { employeeId, ...taskAssign } = createTaskDTO;
-    const employee = await this.userRepo.findById(employeeId);
+    const employee = await this.userService.findById(employeeId);
     const task = this.taskRepo.create({
       ...taskAssign,
       employee,
@@ -78,11 +78,25 @@ export class TaskService {
     });
     if (!taskExisted) throw new NotFoundException('Task not existed!');
 
-    if (employeeId) {
-      const existedUser = await this.userRepo.findById(employeeId);
-      taskExisted.employee = existedUser;
+    const oldEmployee = taskExisted.employee;
+
+    if (employeeId && employeeId !== oldEmployee.id) {
+      // old to new emplooyee
+      const newEmployee = await this.userService.findById(employeeId);
+      taskExisted.employee = newEmployee;
+      // notfi for new employee
+      await this.notificationService.createUserNotification({
+        userId: newEmployee.id,
+        message: `This ${taskExisted.title} task from  ${oldEmployee.username} was transfer on you!`,
+      });
+
+      // notif for old employee
+      await this.notificationService.createUserNotification({
+        userId: oldEmployee.id,
+        message: `Your task - ${taskExisted.title} was transfer to ${newEmployee.username} successfully!`,
+      });
     }
-    // add a logic for updating notification here 
+
     Object.assign(taskExisted, modifyTask);
     return await this.taskRepo.save(taskExisted);
   }
