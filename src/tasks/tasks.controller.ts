@@ -22,6 +22,10 @@ import { CreateTaskDTO } from './dto/create-task.dto';
 import { Role } from 'src/common/decorators/role.decorator';
 import { UserRole } from 'src/common/enums/user-role.enum';
 import { UpdateTaskDTO } from './dto/update-task.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import { SubmitTaskDTO } from './dto/submit-task.dto';
 
 @Controller('tasks')
 @UseGuards(AuthGuard, RoleGuard)
@@ -39,7 +43,33 @@ export class TaskController {
   // to do -> add a logic for submitting answer for employee
   @Post(':id/submit')
   @Role(UserRole.Employee)
-  async submitTask() {}
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads/tasks', // where the uploaded file stored
+        filename: (req, file, callback) => {
+          const uniqueChar = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const extensionName = extname(file.originalname);
+          callback(null, `${file.filename}-${uniqueChar}${extensionName}`);
+        },
+      }),
+    }),
+  )
+  async submitTask(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() submitTaskDTO: SubmitTaskDTO,
+    @UploadedFile() file: Express.Multer.File,
+    @Req() req,
+  ) {
+    const { userId } = req.user;
+    const fileUrl = file ? `/uploads/tasks/${file.originalname}` : null;
+    return await this.taskService.submitTask(
+      id,
+      userId,
+      submitTaskDTO,
+      fileUrl,
+    );
+  }
 
   // get all task - admin only
   @HttpCode(HttpStatus.OK)

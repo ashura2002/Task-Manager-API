@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Task } from './entities/task.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -103,5 +107,30 @@ export class TaskService {
     return await this.taskRepo.save(taskExisted);
   }
 
-  async submitTask(): Promise<any> {}
+  async submitTask(
+    taskId: number,
+    userId: number,
+    submitTaskDTO: SubmitTaskDTO,
+    fileUrl?: string | null,
+  ): Promise<Task> {
+    const task = await this.taskRepo.findOne({
+      where: { id: taskId },
+      relations: ['employee'],
+    });
+    if (!task) throw new NotFoundException('Task not found');
+    if (task.employee.id !== userId)
+      throw new UnauthorizedException('Not allowed to modify this task');
+
+    // assign the answer base on dto from body
+    task.answerText = submitTaskDTO.answerText;
+    if (fileUrl) task.fileUrl = fileUrl;
+    task.status = Status.Done;
+
+    await this.notificationService.createUserNotification({
+      userId: userId,
+      message: `You successfully submitted your task ${task.title}`,
+    });
+
+    return await this.taskRepo.save(task);
+  }
 }
