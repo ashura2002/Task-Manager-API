@@ -26,6 +26,12 @@ export class Task {
   })
   status: Status;
 
+  @Column({ nullable: true })
+  answerText?: string;
+
+  @Column({ nullable: true })
+  fileUrl?: string;
+
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 

@@ -10,7 +10,9 @@ import {
   Patch,
   Post,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from 'src/common/guards/auth.guard';
 import { RoleGuard } from 'src/common/guards/role.guard';
@@ -34,6 +36,11 @@ export class TaskController {
     return await this.taskService.createTask(createTaskDTO);
   }
 
+  // to do -> add a logic for submitting answer for employee
+  @Post(':id/submit')
+  @Role(UserRole.Employee)
+  async submitTask() {}
+
   // get all task - admin only
   @HttpCode(HttpStatus.OK)
   @Get('/admin')
@@ -51,10 +58,8 @@ export class TaskController {
     return await this.taskService.getAllOwnTask(userId);
   }
 
-  // get by id -> admin only
   @HttpCode(HttpStatus.OK)
   @Get(':id')
-  @Role(UserRole.Admin)
   async getTaskById(@Param('id', ParseIntPipe) id: number): Promise<Task> {
     return await this.taskService.getTaskById(id);
   }

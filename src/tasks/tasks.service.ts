@@ -6,6 +6,8 @@ import { CreateTaskDTO } from './dto/create-task.dto';
 import { UserService } from 'src/users/users.service';
 import { UpdateTaskDTO } from './dto/update-task.dto';
 import { NotificationService } from 'src/notifications/notifications.service';
+import { SubmitTaskDTO } from './dto/submit-task.dto';
+import { Status } from 'src/common/enums/taskStatus.enum';
 
 @Injectable()
 export class TaskService {
@@ -100,4 +102,6 @@ export class TaskService {
     Object.assign(taskExisted, modifyTask);
     return await this.taskRepo.save(taskExisted);
   }
+
+  async submitTask(): Promise<any> {}
 }
