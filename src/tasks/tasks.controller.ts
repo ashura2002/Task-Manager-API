@@ -46,11 +46,15 @@ export class TaskController {
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
-        destination: './uploads/tasks', // where the uploaded file stored
+        destination: './uploads/tasks', // where the uploaded file store
         filename: (req, file, callback) => {
-          const uniqueChar = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const uniqueRandomChar =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
           const extensionName = extname(file.originalname);
-          callback(null, `${file.filename}-${uniqueChar}${extensionName}`);
+          callback(
+            null,
+            `${file.originalname}-${uniqueRandomChar}${extensionName}`,
+          );
         },
       }),
     }),
@@ -65,8 +69,8 @@ export class TaskController {
     const fileUrl = file ? `/uploads/tasks/${file.originalname}` : null;
     return await this.taskService.submitTask(
       id,
-      userId,
       submitTaskDTO,
+      userId,
       fileUrl,
     );
   }

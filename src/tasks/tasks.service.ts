@@ -109,26 +109,29 @@ export class TaskService {
 
   async submitTask(
     taskId: number,
-    userId: number,
     submitTaskDTO: SubmitTaskDTO,
+    userId: number,
     fileUrl?: string | null,
-  ): Promise<Task> {
+  ): Promise<any> {
     const task = await this.taskRepo.findOne({
       where: { id: taskId },
       relations: ['employee'],
     });
-    if (!task) throw new NotFoundException('Task not found');
+    if (!task) throw new NotFoundException('Task not found!');
     if (task.employee.id !== userId)
-      throw new UnauthorizedException('Not allowed to modify this task');
+      throw new UnauthorizedException(`You can't modify this task!!!`);
 
-    // assign the answer base on dto from body
+    //  assign the answer base on dto on body
     task.answerText = submitTaskDTO.answerText;
-    if (fileUrl) task.fileUrl = fileUrl;
     task.status = Status.Done;
 
+    // check if the property that contain a file is has avalue
+    if (fileUrl) task.fileUrl = fileUrl;
+
+    // set notification after submitting
     await this.notificationService.createUserNotification({
       userId: userId,
-      message: `You successfully submitted your task ${task.title}`,
+      message: `Youre successfully submitted this task ${task.title}`,
     });
 
     return await this.taskRepo.save(task);
