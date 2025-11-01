@@ -22,7 +22,10 @@ export class TaskService {
     private readonly notificationService: NotificationService,
   ) {}
 
-  async createTask(createTaskDTO: CreateTaskDTO): Promise<Task> {
+  async createTask(
+    createTaskDTO: CreateTaskDTO,
+    userId: number,
+  ): Promise<Task> {
     const { employeeId, ...taskAssign } = createTaskDTO;
     const employee = await this.userService.findById(employeeId);
     const task = this.taskRepo.create({
@@ -30,10 +33,18 @@ export class TaskService {
       employee,
     });
     const savedTask = await this.taskRepo.save(task);
+    // for employee
     await this.notificationService.createUserNotification({
       userId: employeeId,
       message: `You have been assign for a new task: ${savedTask.title}`,
     });
+
+    // for admin notif
+    await this.notificationService.createUserNotification({
+      userId: userId,
+      message: `You been successfully assign ${employee.email} a new task`,
+    });
+
     return savedTask;
   }
 
