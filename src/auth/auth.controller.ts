@@ -8,6 +8,7 @@ import { AuthGuard } from 'src/common/guards/auth.guard';
 import { RoleGuard } from 'src/common/guards/role.guard';
 import { Role } from 'src/common/decorators/role.decorator';
 import { UserRole } from 'src/common/enums/user-role.enum';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -18,6 +19,8 @@ export class AuthController {
     return await this.authService.login(loginDTO);
   }
 
+  @ApiTags('Auth')
+  @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard, RoleGuard)
   @Role(UserRole.Admin)
   @Post('/register')
