@@ -64,7 +64,7 @@ export class TaskController {
     @Body() submitTaskDTO: SubmitTaskDTO,
     @UploadedFile() file: Express.Multer.File,
     @Req() req,
-  ) {
+  ): Promise<Task> {
     const { userId } = req.user;
     const fileUrl = file ? `/uploads/tasks/${file.originalname}` : null;
     return await this.taskService.submitTask(

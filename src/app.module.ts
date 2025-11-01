@@ -7,9 +7,19 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { TasksModule } from './tasks/tasks.module';
 import { NotificationModule } from './notifications/notifications.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60000, // 1 minute
+          limit: 10, // request per minutes
+        },
+      ],
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -30,9 +40,16 @@ import { NotificationModule } from './notifications/notifications.module';
     UserModule,
     AuthModule,
     TasksModule,
-    NotificationModule
+    NotificationModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    // to apply it global
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}
