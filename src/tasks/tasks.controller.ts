@@ -39,8 +39,12 @@ export class TaskController {
   @HttpCode(HttpStatus.CREATED)
   @Post()
   @Role(UserRole.Admin)
-  async createTask(@Body() createTaskDTO: CreateTaskDTO): Promise<Task> {
-    return await this.taskService.createTask(createTaskDTO);
+  async createTask(
+    @Req() req,
+    @Body() createTaskDTO: CreateTaskDTO,
+  ): Promise<Task> {
+    const { userId } = req.user;
+    return await this.taskService.createTask(createTaskDTO, userId);
   }
 
   // to do -> add a logic for submitting answer for employee
