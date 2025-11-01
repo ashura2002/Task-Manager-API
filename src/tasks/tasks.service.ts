@@ -40,25 +40,15 @@ export class TaskService {
   async getAllOwnTask(userId: number): Promise<Task[]> {
     const task = await this.taskRepo.find({
       where: { employee: { id: userId } },
-      relations: ['employee'],
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        status: true,
-        employee: {
-          id: true,
-          username: true,
-          email: true,
-          role: true,
-        },
-      },
     });
     return task;
   }
 
   async getAllTaskByAdmin(): Promise<Task[]> {
-    const task = await this.taskRepo.find();
+    const task = await this.taskRepo.find({
+      relations: ['employee'],
+      select: { employee: { email: true } },
+    });
     return task;
   }
 
@@ -112,7 +102,7 @@ export class TaskService {
     submitTaskDTO: SubmitTaskDTO,
     userId: number,
     fileUrl?: string | null,
-  ): Promise<any> {
+  ): Promise<Task> {
     const task = await this.taskRepo.findOne({
       where: { id: taskId },
       relations: ['employee'],
