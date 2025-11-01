@@ -20,7 +20,11 @@ import { NotificationService } from './notifications.service';
 import { createNotificationDTO } from './dto/create-notif.dto';
 import { Notification_ } from './entities/notifications.entity';
 import { UpdateNotificationDTO } from './dto/update-notif.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+
+@ApiTags('Notifications')
+@ApiBearerAuth('access-token')
 @Controller('notifications')
 @UseGuards(AuthGuard, RoleGuard)
 export class NotificationController {
