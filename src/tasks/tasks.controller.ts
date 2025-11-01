@@ -26,7 +26,10 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { SubmitTaskDTO } from './dto/submit-task.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Tasks')
+@ApiBearerAuth('access-token')
 @Controller('tasks')
 @UseGuards(AuthGuard, RoleGuard)
 export class TaskController {
